@@ -1,0 +1,39 @@
+name: validate
+
+on:
+  push:
+    paths:
+      - 'data/**'
+      - 'build/**'
+      - '.github/workflows/validate.yml'
+  pull_request:
+    paths:
+      - 'data/**'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON (schema + duplicates + key-leak guard)
+        shell: pwsh
+        run: ./build/validate.ps1
+
+      - name: Check checksum file is up to date
+        shell: bash
+        run: |
+          set -e
+          expected=$(cut -d' ' -f1 data/products.sha256)
+          actual=$(sha256sum data/products.json | cut -d' ' -f1)
+          echo "expected: $expected"
+          echo "actual  : $actual"
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::data/products.sha256 is stale. Run build/validate.ps1 and commit the result."
+            exit 1
+          fi
+
+      - name: Verify JSON is parseable by a generic parser
+        shell: bash
+        run: python3 -c "import json,io; d=json.load(io.open('data/products.json',encoding='utf-8')); print('editions:', len(d['editions']))"

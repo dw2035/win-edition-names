@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Windows 版本名称对照表</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 15px/1.6 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; margin: 0; padding: 24px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.sub { margin: 0 0 18px; opacity: .65; font-size: 13px; }
+  input { width: 100%; max-width: 420px; padding: 8px 10px; font-size: 14px;
+          border: 1px solid #8884; border-radius: 8px; background: transparent; color: inherit; }
+  table { border-collapse: collapse; width: 100%; margin-top: 14px; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid #8883; vertical-align: top; }
+  th { font-weight: 600; opacity: .7; font-size: 13px; }
+  code { font-family: Consolas, ui-monospace, monospace; font-size: 13px; }
+  td.id { white-space: nowrap; }
+  td.note { opacity: .7; font-size: 13px; }
+  .empty { opacity: .6; margin-top: 18px; }
+</style>
+</head>
+<body>
+<h1>Windows 版本名称对照表</h1>
+<p class="sub">EditionID &rarr; 中文 / English 正式名称。数据源：<code>data/products.json</code>，纯命名数据，不含任何密钥。</p>
+<input id="q" type="search" placeholder="输入 EditionID 或名称过滤，例如 ProfessionalWorkstation" autocomplete="off" />
+<table>
+  <thead><tr><th>EditionID</th><th>中文名称</th><th>English</th><th>备注</th></tr></thead>
+  <tbody id="tb"><tr><td colspan="4" class="empty">加载中…</td></tr></tbody>
+</table>
+<script>
+(async function () {
+  const tb = document.getElementById('tb');
+  const q  = document.getElementById('q');
+  let rows = [];
+
+  function familyLabel(family) {
+    if (family === 'server') return 'Windows Server';
+    if (family === 'iot')    return 'Windows IoT';
+    return 'Windows';
+  }
+
+  try {
+    const res = await fetch('data/products.json', { cache: 'no-cache' });
+    const doc = await res.json();
+    rows = Object.keys(doc.editions).sort().map(function (id) {
+      const e = doc.editions[id];
+      const label = familyLabel(e.family);
+      return {
+        id: id,
+        zh: label + ' ' + e.zh,
+        en: label + ' ' + e.en,
+        note: e.note || '',
+        family: e.family
+      };
+    });
+  } catch (err) {
+    tb.innerHTML = '<tr><td colspan="4" class="empty">加载失败：' + err + '</td></tr>';
+    return;
+  }
+
+  function render(list) {
+    if (!list.length) {
+      tb.innerHTML = '<tr><td colspan="4" class="empty">没有匹配项</td></tr>';
+      return;
+    }
+    tb.innerHTML = list.map(function (r) {
+      return '<tr><td class="id"><code>' + r.id + '</code></td>' +
+             '<td>' + r.zh + '</td>' +
+             '<td>' + r.en + '</td>' +
+             '<td class="note">' + r.note + '</td></tr>';
+    }).join('');
+  }
+
+  q.addEventListener('input', function () {
+    const k = q.value.trim().toLowerCase();
+    if (!k) return render(rows);
+    render(rows.filter(function (r) {
+      return (r.id + ' ' + r.zh + ' ' + r.en + ' ' + r.note).toLowerCase().indexOf(k) >= 0;
+    }));
+  });
+
+  render(rows);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-10-24",
+  "locale": "zh-CN",
+  "description": "Windows EditionID -> friendly display name. Naming data only. Contains NO product keys.",
+  "families": {
+    "client": { "zh": "Windows", "en": "Windows" },
+    "server": { "zh": "Windows Server", "en": "Windows Server" },
+    "iot": { "zh": "Windows IoT", "en": "Windows IoT" },
+    "special": { "zh": "Windows", "en": "Windows" }
+  },
+  "editions": {
+    "Core": {
+      "zh": "家庭版", "en": "Home", "family": "client", "tier": 1
+    },
+    "CoreN": {
+      "zh": "家庭版 N", "en": "Home N", "family": "client", "tier": 1,
+      "note": "N 版不含部分媒体组件(欧盟)"
+    },
+    "CoreSingleLanguage": {
+      "zh": "家庭单语言版", "en": "Home Single Language", "family": "client", "tier": 1,
+      "note": "OEM 预装常见，只能使用单一显示语言"
+    },
+    "CoreCountrySpecific": {
+      "zh": "家庭中文版", "en": "Home China", "family": "client", "tier": 1,
+      "note": "中国大陆特供，品牌机预装常见"
+    },
+    "Professional": {
+      "zh": "专业版", "en": "Pro", "family": "client", "tier": 2
+    },
+    "ProfessionalN": {
+      "zh": "专业版 N", "en": "Pro N", "family": "client", "tier": 2
+    },
+    "ProfessionalWorkstation": {
+      "zh": "专业工作站版", "en": "Pro for Workstations", "family": "client", "tier": 3,
+      "note": "独立 SKU：支持 4 路 CPU / 6TB 内存 / ReFS / SMB Direct"
+    },
+    "ProfessionalWorkstationN": {
+      "zh": "专业工作站版 N", "en": "Pro for Workstations N", "family": "client", "tier": 3
+    },
+    "ProfessionalEducation": {
+      "zh": "专业教育版", "en": "Pro Education", "family": "client", "tier": 2
+    },
+    "ProfessionalEducationN": {
+      "zh": "专业教育版 N", "en": "Pro Education N", "family": "client", "tier": 2
+    },
+    "Education": {
+      "zh": "教育版", "en": "Education", "family": "client", "tier": 3
+    },
+    "EducationN": {
+      "zh": "教育版 N", "en": "Education N", "family": "client", "tier": 3
+    },
+    "Enterprise": {
+      "zh": "企业版", "en": "Enterprise", "family": "client", "tier": 4
+    },
+    "EnterpriseN": {
+      "zh": "企业版 N", "en": "Enterprise N", "family": "client", "tier": 4
+    },
+    "EnterpriseS": {
+      "zh": "企业版 LTSC", "en": "Enterprise LTSC", "family": "client", "tier": 4,
+      "note": "长期服务频道；LTSB 2015/2016 与 LTSC 2019/2021/2024 共用此 EditionID"
+    },
+    "EnterpriseSN": {
+      "zh": "企业版 LTSC N", "en": "Enterprise LTSC N", "family": "client", "tier": 4
+    },
+    "EnterpriseG": {
+      "zh": "企业版 G", "en": "Enterprise G", "family": "special", "tier": 4,
+      "note": "中国政务定制版，激活与更新通道独立"
+    },
+    "EnterpriseGN": {
+      "zh": "企业版 G N", "en": "Enterprise G N", "family": "special", "tier": 4
+    },
+    "ServerRdsh": {
+      "zh": "企业版多会话", "en": "Enterprise for Virtual Desktops", "family": "special", "tier": 4,
+      "note": "旧称 Enterprise for Virtual Desktops / 多会话远程桌面"
+    },
+    "CloudEdition": {
+      "zh": "云端版（SE）", "en": "Cloud (SE)", "family": "special", "tier": 1,
+      "note": "教育类精简版本，EditionID 可能随版本变化"
+    },
+    "IoTEnterprise": {
+      "zh": "IoT 企业版", "en": "IoT Enterprise", "family": "iot", "tier": 4
+    },
+    "IoTEnterpriseS": {
+      "zh": "IoT 企业版 LTSC", "en": "IoT Enterprise LTSC", "family": "iot", "tier": 4
+    },
+    "ServerStandard": {
+      "zh": "标准版", "en": "Standard", "family": "server", "tier": 3
+    },
+    "ServerDatacenter": {
+      "zh": "数据中心版", "en": "Datacenter", "family": "server", "tier": 4
+    },
+    "ServerDatacenterCor": {
+      "zh": "数据中心版：Azure 版", "en": "Datacenter: Azure Edition", "family": "server", "tier": 4,
+      "note": "仅 Azure 平台提供"
+    },
+    "ServerAzureStackHCICor": {
+      "zh": "Azure Stack HCI", "en": "Azure Stack HCI", "family": "server", "tier": 4
+    },
+    "ServerSolution": {
+      "zh": "Server 解决方案版", "en": "Server Solutions", "family": "server", "tier": 3,
+      "note": "OEM 嵌入式解决方案 SKU，桌面版号通常不作为独立产品命名"
+    }
+  },
+  "unknownHint": "未收录的 EditionID 请直接显示原始字符串，并向上游字典补充"
+}

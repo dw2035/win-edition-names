@@ -161,6 +161,39 @@ if ($Interactive) {
             Write-Host ('       英文 : ' + $label2 + ' ' + $hit.Value.en)
             if ($hit.Value.note) { Write-Host ('       备注 : ' + $hit.Value.note) }
         }
+
+        # 只读：可选查看本机激活状态（不修改任何设置）
+        $more = Read-Host '查看本机激活状态？(y=检查, 回车=继续)'
+        if ($null -ne $more -and $more -match '^(y|Y|yes|YES)$') {
+            $lic = Get-CimInstance SoftwareLicensingProduct -Filter "PartialProductKey IS NOT NULL" |
+                Where-Object { $_.Name -like 'Windows*' } | Select-Object -First 1
+            if ($lic) {
+                $st = switch ([int]$lic.LicenseStatus) {
+                    0 { 'Unlicensed (未授权)' }
+                    1 { 'Licensed (已激活)' }
+                    2 { 'OOB Grace (初始宽限期)' }
+                    3 { 'OOT Grace (宽限期已过)' }
+                    4 { 'Non-Genuine Grace (非正版宽限)' }
+                    5 { 'Notification (通知/未激活)' }
+                    6 { 'Extended Grace (延长宽限)' }
+                    default { '状态码 ' + $lic.LicenseStatus }
+                }
+                Write-Host ('  激活状态  : ' + $st)
+                if ($lic.PartialProductKey) { Write-Host ('  密钥末5位 : ' + $lic.PartialProductKey) }
+                if ([int]$lic.LicenseStatus -ne 1 -and $lic.GracePeriodRemaining -gt 0) {
+                    Write-Host ('  剩余宽限  : ' + [math]::Round(([double]$lic.GracePeriodRemaining / 1440), 0) + ' 天')
+                }
+                $spp = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform'
+                $kn = (Get-ItemProperty $spp -Name KeyManagementServiceName).KeyManagementServiceName
+                if ($kn -and $kn.Trim() -ne '') {
+                    $kp = (Get-ItemProperty $spp -Name KeyManagementServicePort).KeyManagementServicePort
+                    if (-not $kp) { $kp = 1688 }
+                    Write-Host ('  KMS 指向  : ' + $kn.Trim() + ':' + $kp)
+                }
+            } else {
+                Write-Host '  [i] 无法读取授权对象（可能需要管理员权限）'
+            }
+        }
         Write-Host ''
     }
 

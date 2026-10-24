@@ -17,6 +17,7 @@ param(
     [switch]$List,
     [switch]$Json,
     [switch]$Offline,
+    [switch]$Interactive,
     [string]$Source = 'https://raw.githubusercontent.com/dw2035/win-edition-names/main/data/products.json',
     [string]$Fallback = 'https://dw2035.github.io/win-edition-names/data/products.json',
     [int]$MaxAgeDays = 7,
@@ -142,6 +143,58 @@ if ($List) {
     Write-Host ('-' * 90)
     Write-Host ('source: ' + $dataSrc + '   count: ' + @($doc.editions.PSObject.Properties).Count)
     Write-Host ''
+    exit 0
+}
+
+# ---------- interactive mode ----------
+if ($Interactive) {
+    Write-Host ''
+    Write-Host '================================================================'
+    Write-Host '  Windows Edition Name Lookup  (interactive)'
+    Write-Host '================================================================'
+    Write-Host ('  本机原始代号 : ' + $regEdition)
+    Write-Host ('  本机版本     : ' + $regBuild + '  ' + $regDisplay + '  [' + $regInstall + ']')
+    Write-Host ('  数据来源     : ' + $dataSrc + '   (schema v' + $doc.schemaVersion + ', updated ' + $doc.updated + ')')
+    Write-Host ('-' * 64)
+    Write-Host '  直接回车 = 翻译本机代号'
+    Write-Host '  输入代号 = 查别的（支持 SPP 长名称，如 Windows(R), Xxx edition）'
+    Write-Host '  q        = 退出'
+    Write-Host ''
+
+    while ($true) {
+        $ans = Read-Host '请输入代号'
+        if ($null -eq $ans) { break }
+        $ans = $ans.Trim()
+        if ($ans -ieq 'q' -or $ans -ieq 'quit' -or $ans -ieq 'exit') { break }
+        if ($ans -eq '') { $ans = $regEdition }
+
+        $e = $ans
+        $m2 = [regex]::Match($e, ',\s*([A-Za-z0-9]+)\s+edition')
+        if ($m2.Success) { $e = $m2.Groups[1].Value }
+        $e = ($e -replace '\s+', '')
+
+        $hit = $doc.editions.PSObject.Properties[$e]
+        $hitKey = $e
+        if (-not $hit) {
+            foreach ($p in $doc.editions.PSObject.Properties) {
+                if ($p.Name.ToLower() -eq $e.ToLower()) { $hit = $p; $hitKey = $p.Name; break }
+            }
+        }
+
+        if (-not $hit) {
+            Write-Host ('  [X] 未收录: ' + $ans) -ForegroundColor Yellow
+            Write-Host '      可向上游字典提交 PR 补充。'
+        } else {
+            $label2 = Get-FamilyLabel $hit.Value.family $buildNum $hit.Value.era
+            Write-Host ('  [OK] ' + $hitKey) -ForegroundColor Green
+            Write-Host ('       中文 : ' + $label2 + ' ' + $hit.Value.zh)
+            Write-Host ('       英文 : ' + $label2 + ' ' + $hit.Value.en)
+            if ($hit.Value.note) { Write-Host ('       备注 : ' + $hit.Value.note) }
+        }
+        Write-Host ''
+    }
+
+    Write-Host '  已退出。'
     exit 0
 }
 

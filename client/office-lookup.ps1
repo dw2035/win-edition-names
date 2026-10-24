@@ -16,6 +16,7 @@ param(
     [switch]$Json,
     [switch]$Force,
     [switch]$Offline,
+    [switch]$Interactive,
     [string]$Source = 'https://raw.githubusercontent.com/dw2035/win-edition-names/main/data/office-skus.json',
     [string]$Fallback = 'https://dw2035.github.io/win-edition-names/data/office-skus.json',
     [int]$MaxAgeDays = 7,
@@ -214,6 +215,55 @@ function Compose([object]$e) {
         if ($chEn) { $en = $en + ' (' + $chEn + ')' }
     }
     return [pscustomobject]@{ zh = $zh; en = $en }
+}
+
+# ---------- interactive mode ----------
+if ($Interactive) {
+    Write-Host ''
+    Write-Host '================================================================'
+    Write-Host '  Office SKU Name Lookup  (interactive)'
+    Write-Host '================================================================'
+
+    $det = @(Get-InstalledReleaseIds)
+    if ($det.Count -eq 0) { $det = @(Get-OsppLicenseNames) }
+    if ($det.Count -eq 0) {
+        Write-Host '  本机未检测到 Office'
+    } else {
+        Write-Host '  本机检测到:'
+        foreach ($d in $det) {
+            $e0 = Resolve-Office $d
+            $c0 = Compose $e0
+            if ($c0) { Write-Host ('    ' + $d + '  ->  ' + $c0.zh) }
+            else     { Write-Host ('    ' + $d + '  ->  (未收录)') }
+        }
+    }
+    Write-Host ('  数据来源     : ' + $dataSrc + '   (schema v' + $doc.schemaVersion + ', updated ' + $doc.updated + ')')
+    Write-Host ('-' * 64)
+    Write-Host '  输入 ReleaseId 或 OSPP 长名称查询；q = 退出'
+    Write-Host ''
+
+    while ($true) {
+        $ans = Read-Host '请输入代号'
+        if ($null -eq $ans) { break }
+        $ans = $ans.Trim()
+        if ($ans -ieq 'q' -or $ans -ieq 'quit' -or $ans -ieq 'exit') { break }
+        if ($ans -eq '') { continue }
+
+        $e = Resolve-Office $ans
+        if (-not $e) {
+            Write-Host ('  [X] 未收录: ' + $ans) -ForegroundColor Yellow
+        } else {
+            $c = Compose $e
+            Write-Host ('  [OK] ' + $e.key) -ForegroundColor Green
+            Write-Host ('       中文 : ' + $c.zh)
+            Write-Host ('       英文 : ' + $c.en)
+            if ($e.channel) { Write-Host ('       通道 : ' + $e.channel) }
+        }
+        Write-Host ''
+    }
+
+    Write-Host '  已退出。'
+    exit 0
 }
 
 # ---------- list mode ----------

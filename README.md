@@ -78,6 +78,9 @@ office21proplus2021vlkmsclient
 覆盖：Office 2016 / 2019 / 2021 / 2024 的 ProPlus、Standard、Professional、家庭学生、小型企业、个人、Mondo；Microsoft 365 四个常见版本；Project 与 Visio 的 Pro/Std；以及 8 个单独组件（Word、Excel、PowerPoint、Outlook、Access、Publisher、OneNote、Skype for Business）的自动合成。
 
 ```powershell
+# 交互模式（双击 office.bat 即进入，先列出本机检测到的 Office 产品）
+powershell -File client\office-lookup.ps1 -Interactive
+
 # 不传参数：自动读 HKLM\SOFTWARE\Microsoft\Office\ClickToRun\Configuration
 powershell -File client\office-lookup.ps1
 
@@ -118,6 +121,10 @@ powershell -File client\office-lookup.ps1 -Json
 ## 客户端用法
 
 ```powershell
+# 交互模式（双击 lookup.bat 即进入）
+#   先显示本机原始代号，然后可反复输入代号查询，回车=翻译本机，q=退出
+powershell -File client\lookup.ps1 -Interactive
+
 # 当前机器
 powershell -File client\lookup.ps1
 

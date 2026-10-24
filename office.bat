@@ -20,7 +20,12 @@ if not exist "%PS1%" (
     exit /b 1
 )
 
+if not "%~1"=="" goto :withargs
+powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -Interactive
+goto :done
+:withargs
 powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" %*
+:done
 set "RC=%ERRORLEVEL%"
 
 if "%~1"=="" (

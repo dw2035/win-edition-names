@@ -144,8 +144,12 @@
       "zh": "Azure Stack HCI", "en": "Azure Stack HCI", "family": "server", "tier": 4
     },
     "ServerSolution": {
-      "zh": "解决方案版", "en": "Solutions", "family": "server", "tier": 3,
-      "note": "OEM 嵌入式解决方案 SKU"
+      "zh": "Essentials 基础版", "en": "Essentials", "family": "server", "tier": 2,
+      "note": "Windows Server 2012 R2 / 2016 / 2019 Essentials 均使用此 EditionID"
+    },
+    "ServerEnterpriseIA64": {
+      "zh": "企业版（Itanium）", "en": "Enterprise for Itanium", "family": "server", "tier": 4,
+      "note": "Windows Server 2008 / 2008 R2 for Itanium-based Systems"
     },
     "ServerEnterprise": {
       "zh": "企业版", "en": "Enterprise", "family": "server", "tier": 4,

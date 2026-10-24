@@ -56,8 +56,10 @@ function Get-UrlText {
 }
 
 function Get-FamilyLabel {
-    param([string]$Family, [int]$Build)
+    param([string]$Family, [int]$Build, [string]$Era)
+    if ($Era) { return 'Windows ' + $Era }
     if ($Family -eq 'iot') { return 'Windows IoT' }
+    if ($Family -eq 'special') { return 'Windows' }
     if ($Family -eq 'server') {
         switch ($Build) {
             26100 { return 'Windows Server 2025' }
@@ -107,12 +109,20 @@ if (-not $Offline) {
 }
 
 if (-not $doc) {
-    $doc = Read-Doc $cache
-    if ($doc) { $dataSrc = 'cache' }
-}
-if (-not $doc) {
-    $doc = Read-Doc $bundled
-    if ($doc) { $dataSrc = 'bundled' }
+    $docCache   = Read-Doc $cache
+    $docBundled = Read-Doc $bundled
+    if ($docCache -and $docBundled) {
+        # 同日期或本地更新时优先随包字典，避免开发时读到旧缓存
+        if ([string]$docBundled.updated -ge [string]$docCache.updated) {
+            $doc = $docBundled; $dataSrc = 'bundled'
+        } else {
+            $doc = $docCache; $dataSrc = 'cache'
+        }
+    } elseif ($docCache) {
+        $doc = $docCache; $dataSrc = 'cache'
+    } elseif ($docBundled) {
+        $doc = $docBundled; $dataSrc = 'bundled'
+    }
 }
 if (-not $doc) {
     Write-Host '[ERROR] no data source available (remote / cache / bundled all failed)' -ForegroundColor Red
@@ -125,7 +135,7 @@ if ($List) {
     Write-Host 'EditionID                     zh                          en'
     Write-Host ('-' * 90)
     foreach ($p in ($doc.editions.PSObject.Properties | Sort-Object Name)) {
-        $label = Get-FamilyLabel $p.Value.family $buildNum
+        $label = Get-FamilyLabel $p.Value.family $buildNum $p.Value.era
         $zh = ($label + ' ' + $p.Value.zh)
         Write-Host ('{0,-28}  {1,-26}  {2}' -f $p.Name, $zh, ($label + ' ' + $p.Value.en))
     }
@@ -172,7 +182,7 @@ if (-not $entry) {
 }
 
 $fam   = $entry.Value.family
-$label = Get-FamilyLabel $fam $buildNum
+$label = Get-FamilyLabel $fam $buildNum $entry.Value.era
 $zh    = $label + ' ' + $entry.Value.zh
 $en    = $label + ' ' + $entry.Value.en
 

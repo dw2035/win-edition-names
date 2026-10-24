@@ -44,6 +44,19 @@ product-names/
 └─ .github/workflows/validate.yml
 ```
 
+## 覆盖范围（43 条）
+
+| 族 | 数量 | 说明 |
+|---|---|---|
+| `client` | 29 | Windows 7 → 11 全系列：含 N 版、Connected（含 Bing）、WMC、Student、LTSC/LTSB、企业版 G、多会话、云端版 |
+| `server` | 9 | 2008 → 2025，含 Datacenter: Azure Edition、Hyper-V Server、SBS |
+| `iot` | 3 | IoT 企业版 / IoT 企业版 LTSC / IoT Core |
+| `special` | 2 | Surface Hub 团队版、HoloLens |
+
+- 查找用的 key 就是注册表 `EditionID`，无需解析冗长的 SPP 名称；
+- 老版本条目用 `era` 字段固定年代前缀，例如 `"era": "7"` → `Windows 7 旗舰版`，避免在 Win11 机器上被显示成 “Windows 11 旗舰版”；
+- 未收录的代号会原样输出并提示提交 PR，不会瞎猜。
+
 ## 数据格式
 
 ```json

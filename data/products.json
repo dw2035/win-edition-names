@@ -25,6 +25,40 @@
       "zh": "家庭中文版", "en": "Home China", "family": "client", "tier": 1,
       "note": "中国大陆特供，品牌机预装常见"
     },
+    "CoreConnected": {
+      "zh": "家庭版（含 Bing）", "en": "Home (with Bing)", "family": "client", "tier": 1, "era": "8.1",
+      "note": "Windows 8.1 with Bing 等 OEM 预装版本"
+    },
+    "CoreConnectedSingleLanguage": {
+      "zh": "家庭单语言版（含 Bing）", "en": "Home Single Language (with Bing)", "family": "client", "tier": 1, "era": "8.1"
+    },
+    "CoreConnectedCountrySpecific": {
+      "zh": "家庭中文版（含 Bing）", "en": "Home China (with Bing)", "family": "client", "tier": 1, "era": "8.1"
+    },
+    "ProfessionalWMC": {
+      "zh": "专业版（含媒体中心）", "en": "Pro with Media Center", "family": "client", "tier": 2, "era": "8/8.1",
+      "note": "Windows 8 / 8.1 时代版本"
+    },
+    "ProfessionalStudent": {
+      "zh": "专业版（学生版）", "en": "Pro Student", "family": "client", "tier": 2, "era": "8.1",
+      "note": "Windows 8.1 Pro Student，校园渠道"
+    },
+    "Starter": {
+      "zh": "简易版", "en": "Starter", "family": "client", "tier": 0, "era": "7",
+      "note": "Windows 7 入门版本"
+    },
+    "HomeBasic": {
+      "zh": "家庭普通版", "en": "Home Basic", "family": "client", "tier": 1, "era": "7",
+      "note": "Windows Vista / 7 时代版本"
+    },
+    "HomePremium": {
+      "zh": "家庭高级版", "en": "Home Premium", "family": "client", "tier": 1, "era": "7",
+      "note": "Windows Vista / 7 / 8 时代版本"
+    },
+    "Ultimate": {
+      "zh": "旗舰版", "en": "Ultimate", "family": "client", "tier": 4, "era": "7",
+      "note": "Windows Vista / 7 时代最高版本"
+    },
     "Professional": {
       "zh": "专业版", "en": "Pro", "family": "client", "tier": 2
     },
@@ -64,25 +98,37 @@
       "zh": "企业版 LTSC N", "en": "Enterprise LTSC N", "family": "client", "tier": 4
     },
     "EnterpriseG": {
-      "zh": "企业版 G", "en": "Enterprise G", "family": "special", "tier": 4,
+      "zh": "企业版 G", "en": "Enterprise G", "family": "client", "tier": 4,
       "note": "中国政务定制版，激活与更新通道独立"
     },
     "EnterpriseGN": {
-      "zh": "企业版 G N", "en": "Enterprise G N", "family": "special", "tier": 4
+      "zh": "企业版 G N", "en": "Enterprise G N", "family": "client", "tier": 4
     },
     "ServerRdsh": {
-      "zh": "企业版多会话", "en": "Enterprise for Virtual Desktops", "family": "special", "tier": 4,
+      "zh": "企业版多会话", "en": "Enterprise for Virtual Desktops", "family": "client", "tier": 4,
       "note": "旧称 Enterprise for Virtual Desktops / 多会话远程桌面"
     },
     "CloudEdition": {
-      "zh": "云端版（SE）", "en": "Cloud (SE)", "family": "special", "tier": 1,
+      "zh": "云端版（SE）", "en": "Cloud (SE)", "family": "client", "tier": 1,
       "note": "教育类精简版本，EditionID 可能随版本变化"
     },
+    "PPIPro": {
+      "zh": "团队版（Surface Hub）", "en": "Team (Surface Hub)", "family": "special", "tier": 4, "era": "10",
+      "note": "Surface Hub / Teams Rooms 等大屏设备"
+    },
+    "Holographic": {
+      "zh": "Holographic（HoloLens）", "en": "Holographic", "family": "special", "tier": 4,
+      "note": "HoloLens 设备系统"
+    },
     "IoTEnterprise": {
-      "zh": "IoT 企业版", "en": "IoT Enterprise", "family": "iot", "tier": 4
+      "zh": "企业版", "en": "Enterprise", "family": "iot", "tier": 4
     },
     "IoTEnterpriseS": {
-      "zh": "IoT 企业版 LTSC", "en": "IoT Enterprise LTSC", "family": "iot", "tier": 4
+      "zh": "企业版 LTSC", "en": "Enterprise LTSC", "family": "iot", "tier": 4
+    },
+    "IoTUAP": {
+      "zh": "核心版", "en": "Core", "family": "iot", "tier": 1,
+      "note": "Windows 10 IoT Core，UWP 设备系统"
     },
     "ServerStandard": {
       "zh": "标准版", "en": "Standard", "family": "server", "tier": 3
@@ -98,8 +144,24 @@
       "zh": "Azure Stack HCI", "en": "Azure Stack HCI", "family": "server", "tier": 4
     },
     "ServerSolution": {
-      "zh": "Server 解决方案版", "en": "Server Solutions", "family": "server", "tier": 3,
-      "note": "OEM 嵌入式解决方案 SKU，桌面版号通常不作为独立产品命名"
+      "zh": "解决方案版", "en": "Solutions", "family": "server", "tier": 3,
+      "note": "OEM 嵌入式解决方案 SKU"
+    },
+    "ServerEnterprise": {
+      "zh": "企业版", "en": "Enterprise", "family": "server", "tier": 4,
+      "note": "Windows Server 2008 / 2008 R2"
+    },
+    "ServerWeb": {
+      "zh": "Web 版", "en": "Web", "family": "server", "tier": 1,
+      "note": "Windows Server 2008 / 2008 R2"
+    },
+    "ServerForSmallBusiness": {
+      "zh": "小型企业版", "en": "Small Business Server", "family": "server", "tier": 2,
+      "note": "Windows Small Business Server"
+    },
+    "ServerHyperCore": {
+      "zh": "Hyper-V 服务器", "en": "Hyper-V Server", "family": "server", "tier": 3,
+      "note": "独立的免费 Hyper-V Server，2019 版后停止更新"
     }
   },
   "unknownHint": "未收录的 EditionID 请直接显示原始字符串，并向上游字典补充"

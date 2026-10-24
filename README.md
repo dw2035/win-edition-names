@@ -170,6 +170,68 @@ powershell -File client\lookup.ps1 -Edition "Windows(R), ProfessionalWorkstation
    ```
 2. 跑 `powershell -File build\validate.ps1`，通过后提交 PR。
 
-## 与 `netnr/kms` 的关系
+## 与 `netnr/kms` 清单的对应关系
 
-`netnr/kms` 的 README 里有一份「操作系统版本 ↔ 密钥」的表格，它的**版本名称部分**可以借鉴；本项目只保留名称，**不收录密钥列**。
+[`netnr/kms`](https://github.com/netnr/kms) 的 README 有一份「操作系统版本 ↔ KMS 客户端密钥」表格。本项目**只取名，不取密钥**，并把它列的每一个 Windows 版本映射到真实的 `EditionID`。
+
+### 关键点：年份不需要单独的 key
+
+那份清单是按「版本 × 年份」列的（60 多行），但 `EditionID` **只编码版本**，年份由 `CurrentBuild` 推出：
+
+```
+EditionID = ServerStandard  +  build 26100  →  Windows Server 2025 标准版
+EditionID = ServerStandard  +  build 20348  →  Windows Server 2022 标准版
+EditionID = ServerStandard  +  build 17763  →  Windows Server 2019 标准版
+EditionID = ServerStandard  +  build 14393  →  Windows Server 2016 标准版
+```
+
+所以清单里几十行，实际只需要十几个 key。
+
+### Windows Server（LTSC）
+
+| netnr 清单 | EditionID | 覆盖 |
+|---|---|---|
+| 2025 / 2022：Standard、Datacenter、Datacenter Azure | `ServerStandard`、`ServerDatacenter`、`ServerDatacenterCor` | ✅ |
+| 2019 / 2016 / 2012 R2：Standard、Datacenter、**Essentials** | `ServerStandard`、`ServerDatacenter`、**`ServerSolution`** | ✅ |
+| 2012：标准版、数据中心版 | `ServerStandard`、`ServerDatacenter` | ✅ |
+| 半年频道 20H2 / 2004 / 1909 / 1903 / 1809、1803、1709 | `ServerStandard`、`ServerDatacenter` | ✅ |
+| 2008 R2 / 2008：Web、Standard、Enterprise、Datacenter | `ServerWeb`、`ServerStandard`、`ServerEnterprise`、`ServerDatacenter` | ✅ |
+| 2008 R2 / 2008：**Itanium** | `ServerEnterpriseIA64` | ✅ |
+| 2012：MultiPoint Standard / Premium | — | ❌ 见下 |
+| 2008 R2：**HPC** | — | ❌ 见下 |
+
+### Windows 客户端
+
+| netnr 清单 | EditionID | 覆盖 |
+|---|---|---|
+| Win10/11 专业版、专业版 N | `Professional`、`ProfessionalN` | ✅ |
+| Win10/11 专业工作站、工作站 N | `ProfessionalWorkstation`、`ProfessionalWorkstationN` | ✅ |
+| Win10/11 专业教育版、专业教育版 N | `ProfessionalEducation`、`ProfessionalEducationN` | ✅ |
+| Win10/11 教育版、教育版 N | `Education`、`EducationN` | ✅ |
+| Win10/11 企业版、企业版 N | `Enterprise`、`EnterpriseN` | ✅ |
+| Win10/11 企业版 G、企业版 G N | `EnterpriseG`、`EnterpriseGN` | ✅ |
+| Win10 LTSC 2019、LTSB 2016、LTSB 2015（含 N） | `EnterpriseS`、`EnterpriseSN` | ✅ 共用同一 ID，靠 build 区分 |
+| Win8.1 专业版 / 专业版 N / 企业版 / 企业版 N | `Professional(N)`、`Enterprise(N)` | ✅ build 9600 |
+| Win8 专业版 / 专业版 N / 企业版 / 企业版 N | `Professional(N)`、`Enterprise(N)` | ✅ build 9200 |
+| Win7 专业版 / 专业版 N / 企业版 / 企业版 N | `Professional(N)`、`Enterprise(N)` | ✅ build 7601 |
+| Win7 专业版 E / 企业版 E | — | ❌ 见下 |
+
+### 未收录的 3 组（有意保留）
+
+| 清单项 | 原因 |
+|---|---|
+| Server 2012 MultiPoint Standard / Premium | 无法确证真实 `EditionID` |
+| Server 2008 R2 HPC | 同上 |
+| Win7 专业版 E / 企业版 E | E 变体（欧盟无 IE 版）ID 存疑 |
+
+**写错代号比不写更糟**——它可能把别的版本映射错。未收录时代码会原样显示代号并提示补 PR，不会猜测。
+
+如果你有这样的机器，执行下面的命令并把结果提 PR：
+
+```powershell
+(Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').EditionID
+```
+
+### 本项目的额外覆盖
+
+`netnr/kms` 清单只关心「能用 KMS 激活的批量版本」，因此没有家庭版、IoT、设备版。本项目把这些也补上了（`Core`、`CoreCountrySpecific`、`IoTEnterprise`、`Holographic`、`PPIPro`、`ServerRdsh` 等），因为这些代号在真实机器上同样会出现，同样需要翻译。

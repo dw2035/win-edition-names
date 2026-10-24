@@ -9,8 +9,7 @@ $ErrorActionPreference = 'Stop'
 $totalFail = 0
 
 $targets = @(
-    @{ File = 'data\products.json';    Node = 'editions'; Label = 'EditionID'; AllowEra = $true },
-    @{ File = 'data\office-skus.json'; Node = 'products'; Label = 'ReleaseId'; AllowEra = $false }
+    @{ File = 'data\products.json'; Node = 'editions'; Label = 'EditionID'; AllowEra = $true }
 )
 
 function Fail([string]$msg) {

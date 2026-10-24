@@ -1,27 +1,24 @@
 ﻿# =============================================================
 #  lookup.ps1 - resolve Windows EditionID to a friendly name
-#  Data source: data/products.json (local / cache / remote)
+#  ONLINE ONLY: the dictionary is always fetched from GitHub.
 #  Naming data only - no keys, no activation, no system changes.
 #
 #  Examples:
-#    powershell -File client\lookup.ps1
+#    powershell -File client\lookup.ps1                  (this machine)
+#    powershell -File client\lookup.ps1 -Interactive     (interactive)
 #    powershell -File client\lookup.ps1 -Edition EnterpriseS
 #    powershell -File client\lookup.ps1 -List
 #    powershell -File client\lookup.ps1 -Json
-#    powershell -File client\lookup.ps1 -Offline
-#    powershell -File client\lookup.ps1 -Force -Source https://cdn.example.com/products.json
+#    powershell -File client\lookup.ps1 -Source https://cdn.example.com/products.json
 # =============================================================
 param(
     [string]$Edition,
     [switch]$Force,
     [switch]$List,
     [switch]$Json,
-    [switch]$Offline,
     [switch]$Interactive,
     [string]$Source = 'https://raw.githubusercontent.com/dw2035/win-edition-names/main/data/products.json',
-    [string]$Fallback = 'https://dw2035.github.io/win-edition-names/data/products.json',
-    [int]$MaxAgeDays = 7,
-    [string]$CacheDir = (Join-Path $env:LOCALAPPDATA 'ProductNames')
+    [string]$Fallback = 'https://dw2035.github.io/win-edition-names/data/products.json'
 )
 
 $ErrorActionPreference = 'SilentlyContinue'
@@ -38,19 +35,10 @@ $buildNum = 0
 [void][int]::TryParse([string]$regBuild, [ref]$buildNum)
 
 # ---------- helpers ----------
-function Read-Doc {
-    param([string]$Path)
-    if (-not (Test-Path -LiteralPath $Path)) { return $null }
-    try {
-        $t = [IO.File]::ReadAllText($Path, [Text.Encoding]::UTF8)
-        return ($t | ConvertFrom-Json)
-    } catch { return $null }
-}
-
 function Get-UrlText {
     param([string]$Url)
     try {
-        $r = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 10
+        $r = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 15
         if ($r.StatusCode -eq 200 -and $r.Content) { return $r.Content }
     } catch { }
     return $null
@@ -80,53 +68,35 @@ function Get-FamilyLabel {
     return 'Windows'
 }
 
-# ---------- load dictionary: remote -> cache -> bundled ----------
+# ---------- load dictionary (ONLINE ONLY) ----------
 $doc     = $null
-$dataSrc = 'bundled'
-$bundled = Join-Path (Split-Path -Parent $PSScriptRoot) 'data\products.json'
-$cache   = Join-Path $CacheDir 'products.json'
+$dataSrc = ''
 
-if (-not $Offline) {
-    $stale = $true
-    if (Test-Path -LiteralPath $cache) {
-        $age = (Get-Date) - (Get-Item -LiteralPath $cache).LastWriteTime
-        $stale = ($age.TotalDays -gt $MaxAgeDays)
+foreach ($src in @($Source, $Fallback)) {
+    if ([string]::IsNullOrWhiteSpace($src)) { continue }
+    $txt = Get-UrlText $src
+    if (-not $txt) {
+        Write-Host ('  [!] fetch failed: ' + $src) -ForegroundColor DarkYellow
+        continue
     }
-    if ($Force -or $stale) {
-        $txt = Get-UrlText $Source
-        if (-not $txt -and $Fallback) { $txt = Get-UrlText $Fallback }
-        if ($txt) {
-            try {
-                $tmp = $txt | ConvertFrom-Json
-                if ($tmp.editions) {
-                    New-Item -ItemType Directory -Path $CacheDir -Force | Out-Null
-                    [IO.File]::WriteAllText($cache, $txt, (New-Object Text.UTF8Encoding($false)))
-                    $doc = $tmp
-                    $dataSrc = 'remote'
-                }
-            } catch { }
+    try {
+        $tmp = $txt | ConvertFrom-Json
+        if ($tmp.editions) {
+            $doc = $tmp
+            $dataSrc = $src
+            break
         }
+    } catch {
+        Write-Host ('  [!] invalid JSON: ' + $src) -ForegroundColor DarkYellow
     }
 }
 
 if (-not $doc) {
-    $docCache   = Read-Doc $cache
-    $docBundled = Read-Doc $bundled
-    if ($docCache -and $docBundled) {
-        # 同日期或本地更新时优先随包字典，避免开发时读到旧缓存
-        if ([string]$docBundled.updated -ge [string]$docCache.updated) {
-            $doc = $docBundled; $dataSrc = 'bundled'
-        } else {
-            $doc = $docCache; $dataSrc = 'cache'
-        }
-    } elseif ($docCache) {
-        $doc = $docCache; $dataSrc = 'cache'
-    } elseif ($docBundled) {
-        $doc = $docBundled; $dataSrc = 'bundled'
-    }
-}
-if (-not $doc) {
-    Write-Host '[ERROR] no data source available (remote / cache / bundled all failed)' -ForegroundColor Red
+    Write-Host ''
+    Write-Host '[ERROR] cannot load dictionary online (both sources failed)' -ForegroundColor Red
+    Write-Host '  Check network / proxy, or point to a mirror:'
+    Write-Host '    powershell -File client\lookup.ps1 -Source https://your.mirror/products.json'
+    Write-Host ''
     exit 1
 }
 

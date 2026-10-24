@@ -13,7 +13,7 @@ Windows(R), CoreCountrySpecific edition       →   Windows 11 家庭中文版
 | 做 | 不做 |
 |---|---|
 | 维护 `EditionID → 中英文正式名称` 的对照字典 | ❌ 不含任何产品密钥 |
-| 提供静态 JSON，客户端可缓存、可离线回退 | ❌ 不做激活、不改系统设置 |
+| 提供静态 JSON，客户端每次**在线拉取**（不落地缓存） | ❌ 不做激活、不改系统设置 |
 | 提供网页查询页（GitHub Pages） | ❌ 不需要任何服务端逻辑 |
 
 > 字典本身只是**命名数据**，`build/validate.ps1` 里还有一道守卫：一旦数据里出现形如 `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` 的字符串就直接判失败。
@@ -23,7 +23,7 @@ Windows(R), CoreCountrySpecific edition       →   Windows 11 家庭中文版
 这类需求本质是**分发一份只读数据**，不需要动态接口：
 
 ```
-GitHub 仓库  →  GitHub Pages (CDN)  →  客户端 HTTPS GET data/products.json  →  本地缓存
+GitHub 仓库  →  GitHub Pages (CDN)  →  客户端 HTTPS GET data/products.json  →  内存中查询
 ```
 
 不需要监听端口、不需要服务器进程、不需要鉴权 —— 这也是 GitHub 唯一真正适合承载的形态。
@@ -34,17 +34,13 @@ GitHub 仓库  →  GitHub Pages (CDN)  →  客户端 HTTPS GET data/products.j
 product-names/
 ├─ data/
 │  ├─ products.json          # Windows EditionID 字典（UTF-8 无 BOM）
-│  ├─ products.sha256        # 校验和，由 build/validate.ps1 生成
-│  ├─ office-skus.json       # Office ProductReleaseId 字典
-│  └─ office-skus.json.sha256
+│  └─ products.json.sha256   # 校验和，由 build/validate.ps1 生成
 ├─ build/
-│  └─ validate.ps1           # 校验全部 data/*.json + 刷新校验和
+│  └─ validate.ps1           # 校验 data/products.json + 刷新校验和
 ├─ client/
-│  ├─ lookup.ps1             # Windows：远程 → 缓存 → 本地 三级回退
-│  └─ office-lookup.ps1      # Office：支持 ReleaseId 与 OSPP 长名称
+│  └─ lookup.ps1             # 客户端：每次启动从网络拉取字典
 ├─ index.html                # 网页查询页（Pages 首页）
-├─ lookup.bat                # Windows 双击启动器（纯 ASCII）
-├─ office.bat                # Office 双击启动器（纯 ASCII）
+├─ lookup.bat                # 双击启动器（纯 ASCII）
 └─ .github/workflows/validate.yml
 ```
 
@@ -60,40 +56,6 @@ product-names/
 - 查找用的 key 就是注册表 `EditionID`，无需解析冗长的 SPP 名称；
 - 老版本条目用 `era` 字段固定年代前缀，例如 `"era": "7"` → `Windows 7 旗舰版`，避免在 Win11 机器上被显示成 “Windows 11 旗舰版”；
 - 未收录的代号会原样输出并提示提交 PR，不会瞎猜。
-
-## Office SKU 字典（35 条）
-
-OSPP 的 `LICENSE NAME` 形如 `Office 21, Office21ProPlus2021VL_KMS_Client edition`，客户端会自动归一化：
-
-```
-office21proplus2021vlkmsclient
-  → 去掉通道后缀 kmsclient      = office21proplus2021vl   (通道: kms)
-  → 去掉家族前缀 office21      = proplus2021vl
-  → 去掉 VL 后缀               = proplus2021
-  → 命中字典键 ProPlus2021
-```
-
-所以字典只需维护 **基础代号**（`ProPlus2021`），零售/批量/KMS/MAK 由后缀自动识别，数据量减少一半。
-
-覆盖：Office 2016 / 2019 / 2021 / 2024 的 ProPlus、Standard、Professional、家庭学生、小型企业、个人、Mondo；Microsoft 365 四个常见版本；Project 与 Visio 的 Pro/Std；以及 8 个单独组件（Word、Excel、PowerPoint、Outlook、Access、Publisher、OneNote、Skype for Business）的自动合成。
-
-```powershell
-# 交互模式（双击 office.bat 即进入，先列出本机检测到的 Office 产品）
-powershell -File client\office-lookup.ps1 -Interactive
-
-# 不传参数：自动读 HKLM\SOFTWARE\Microsoft\Office\ClickToRun\Configuration
-powershell -File client\office-lookup.ps1
-
-# 直接给代号（ReleaseId 或 OSPP 长名称都行）
-powershell -File client\office-lookup.ps1 -Name ProPlus2021Volume
-powershell -File client\office-lookup.ps1 -Name "Office 21, Office21ProPlus2021VL_KMS_Client edition"
-
-# 单组件自动合成：Office 2019 Word（零售）
-powershell -File client\office-lookup.ps1 -Name Word2019Retail
-
-powershell -File client\office-lookup.ps1 -List
-powershell -File client\office-lookup.ps1 -Json
-```
 
 ## 数据格式
 
@@ -137,11 +99,8 @@ powershell -File client\lookup.ps1 -Json
 # 列出全部
 powershell -File client\lookup.ps1 -List
 
-# 强制刷新缓存 / 换镜像源
-powershell -File client\lookup.ps1 -Force -Source https://raw.githubusercontent.com/USER/REPO/main/data/products.json
-
-# 完全离线（只用随包字典）
-powershell -File client\lookup.ps1 -Offline
+# 换镜像源（默认 raw → Pages 双源）
+powershell -File client\lookup.ps1 -Source https://raw.githubusercontent.com/USER/REPO/main/data/products.json
 ```
 
 也接受 SPP 风格的长字符串，内部会自动提取代号：
@@ -150,7 +109,9 @@ powershell -File client\lookup.ps1 -Offline
 powershell -File client\lookup.ps1 -Edition "Windows(R), ProfessionalWorkstation edition"
 ```
 
-**数据加载顺序**：远程（超过 `MaxAgeDays` 天或 `-Force`）→ 本地缓存 `%LOCALAPPDATA%\ProductNames\products.json` → 随包 `data/products.json`。三级回退，断网也能用。
+**数据获取**：每次启动依次尝试 `raw.githubusercontent.com` → `dw2035.github.io (Pages)`，任一成功即载入内存并查询；两边都失败则报错退出并提示换镜像源。
+
+> 本仓库**不随包携带字典**，也不写本地缓存——数据始终来自线上，保证每次都是最新版本。
 
 ## 发布到 GitHub
 
@@ -165,7 +126,7 @@ powershell -File client\lookup.ps1 -Edition "Windows(R), ProfessionalWorkstation
 2. **Settings → Pages → Source: GitHub Actions / Deploy from a branch (main, /)**，得到：
    `https://<你>.github.io/<仓库>/`
 3. 客户端默认 `-Source` 里的 `USER/REPO` 换成你的实际路径，或直接用 Pages 地址（国内更稳，也可绑自定义域名）。
-4. 改了 `data/products.json` 后，**务必运行一次** `build/validate.ps1` 更新 `products.sha256`，否则 CI 会报 stale。
+4. 改了 `data/products.json` 后，**务必运行一次** `build/validate.ps1` 更新 `products.json.sha256`，否则 CI 会报 stale。
 
 > 网络提示：`raw.githubusercontent.com` 在国内经常不可达。优先用 Pages 域名，或在 `-Source` 里指定你自己的 CDN。
 

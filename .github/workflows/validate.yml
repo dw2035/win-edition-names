@@ -21,28 +21,25 @@ jobs:
         shell: pwsh
         run: ./build/validate.ps1
 
-      - name: Check checksum files are up to date
+      - name: Check checksum file is up to date
         shell: bash
         run: |
           set -e
-          for f in data/products.json data/office-skus.json; do
-            expected=$(cut -d' ' -f1 "$f.sha256")
-            actual=$(sha256sum "$f" | cut -d' ' -f1)
-            echo "$f expected: $expected"
-            echo "$f actual  : $actual"
-            if [ "$expected" != "$actual" ]; then
-              echo "::error::$f.sha256 is stale. Run build/validate.ps1 and commit the result."
-              exit 1
-            fi
-          done
+          expected=$(cut -d' ' -f1 data/products.json.sha256)
+          actual=$(sha256sum data/products.json | cut -d' ' -f1)
+          echo "expected: $expected"
+          echo "actual  : $actual"
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::data/products.json.sha256 is stale. Run build/validate.ps1 and commit the result."
+            exit 1
+          fi
 
       - name: Verify JSON is parseable by a generic parser
         shell: bash
         run: |
           python3 - <<'PY'
           import json, io
-          for path, node in (('data/products.json', 'editions'), ('data/office-skus.json', 'products')):
-              with io.open(path, encoding='utf-8') as fh:
-                  doc = json.load(fh)
-              print(path, node, len(doc[node]))
+          with io.open('data/products.json', encoding='utf-8') as fh:
+              doc = json.load(fh)
+          print('editions:', len(doc['editions']))
           PY

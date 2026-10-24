@@ -33,14 +33,18 @@ GitHub 仓库  →  GitHub Pages (CDN)  →  客户端 HTTPS GET data/products.j
 ```
 product-names/
 ├─ data/
-│  ├─ products.json          # 主字典（UTF-8 无 BOM）
-│  └─ products.sha256        # 校验和，由 build/validate.ps1 生成
+│  ├─ products.json          # Windows EditionID 字典（UTF-8 无 BOM）
+│  ├─ products.sha256        # 校验和，由 build/validate.ps1 生成
+│  ├─ office-skus.json       # Office ProductReleaseId 字典
+│  └─ office-skus.json.sha256
 ├─ build/
-│  └─ validate.ps1           # 校验 + 刷新校验和
+│  └─ validate.ps1           # 校验全部 data/*.json + 刷新校验和
 ├─ client/
-│  └─ lookup.ps1             # 客户端：远程 → 缓存 → 本地 三级回退
+│  ├─ lookup.ps1             # Windows：远程 → 缓存 → 本地 三级回退
+│  └─ office-lookup.ps1      # Office：支持 ReleaseId 与 OSPP 长名称
 ├─ index.html                # 网页查询页（Pages 首页）
-├─ lookup.bat                # 双击启动器（纯 ASCII）
+├─ lookup.bat                # Windows 双击启动器（纯 ASCII）
+├─ office.bat                # Office 双击启动器（纯 ASCII）
 └─ .github/workflows/validate.yml
 ```
 
@@ -56,6 +60,37 @@ product-names/
 - 查找用的 key 就是注册表 `EditionID`，无需解析冗长的 SPP 名称；
 - 老版本条目用 `era` 字段固定年代前缀，例如 `"era": "7"` → `Windows 7 旗舰版`，避免在 Win11 机器上被显示成 “Windows 11 旗舰版”；
 - 未收录的代号会原样输出并提示提交 PR，不会瞎猜。
+
+## Office SKU 字典（35 条）
+
+OSPP 的 `LICENSE NAME` 形如 `Office 21, Office21ProPlus2021VL_KMS_Client edition`，客户端会自动归一化：
+
+```
+office21proplus2021vlkmsclient
+  → 去掉通道后缀 kmsclient      = office21proplus2021vl   (通道: kms)
+  → 去掉家族前缀 office21      = proplus2021vl
+  → 去掉 VL 后缀               = proplus2021
+  → 命中字典键 ProPlus2021
+```
+
+所以字典只需维护 **基础代号**（`ProPlus2021`），零售/批量/KMS/MAK 由后缀自动识别，数据量减少一半。
+
+覆盖：Office 2016 / 2019 / 2021 / 2024 的 ProPlus、Standard、Professional、家庭学生、小型企业、个人、Mondo；Microsoft 365 四个常见版本；Project 与 Visio 的 Pro/Std；以及 8 个单独组件（Word、Excel、PowerPoint、Outlook、Access、Publisher、OneNote、Skype for Business）的自动合成。
+
+```powershell
+# 不传参数：自动读 HKLM\SOFTWARE\Microsoft\Office\ClickToRun\Configuration
+powershell -File client\office-lookup.ps1
+
+# 直接给代号（ReleaseId 或 OSPP 长名称都行）
+powershell -File client\office-lookup.ps1 -Name ProPlus2021Volume
+powershell -File client\office-lookup.ps1 -Name "Office 21, Office21ProPlus2021VL_KMS_Client edition"
+
+# 单组件自动合成：Office 2019 Word（零售）
+powershell -File client\office-lookup.ps1 -Name Word2019Retail
+
+powershell -File client\office-lookup.ps1 -List
+powershell -File client\office-lookup.ps1 -Json
+```
 
 ## 数据格式
 

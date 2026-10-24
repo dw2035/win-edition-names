@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-10-24",
+  "locale": "zh-CN",
+  "description": "Office ProductReleaseId -> friendly display name. Naming data only. Contains NO product keys.",
+  "families": {
+    "suite": { "zh": "Office", "en": "Office" },
+    "app": { "zh": "Office", "en": "Office" },
+    "visio": { "zh": "Visio", "en": "Visio" },
+    "project": { "zh": "Project", "en": "Project" },
+    "server": { "zh": "Office Server", "en": "Office Server" }
+  },
+  "channels": {
+    "retail": { "zh": "零售", "en": "Retail" },
+    "volume": { "zh": "批量授权", "en": "Volume" },
+    "kms": { "zh": "KMS 客户端", "en": "KMS Client" },
+    "mak": { "zh": "MAK", "en": "MAK" },
+    "subscription": { "zh": "订阅", "en": "Subscription" }
+  },
+  "components": {
+    "Word": { "zh": "Word", "en": "Word" },
+    "Excel": { "zh": "Excel", "en": "Excel" },
+    "PowerPoint": { "zh": "PowerPoint", "en": "PowerPoint" },
+    "Outlook": { "zh": "Outlook", "en": "Outlook" },
+    "Access": { "zh": "Access", "en": "Access" },
+    "Publisher": { "zh": "Publisher", "en": "Publisher" },
+    "OneNote": { "zh": "OneNote", "en": "OneNote" },
+    "SkypeForBusiness": { "zh": "Skype for Business", "en": "Skype for Business" }
+  },
+  "products": {
+    "ProPlus": {
+      "zh": "专业增强版", "en": "Professional Plus", "family": "suite", "year": 2016
+    },
+    "Standard": {
+      "zh": "标准版", "en": "Standard", "family": "suite", "year": 2016
+    },
+    "Professional": {
+      "zh": "专业版", "en": "Professional", "family": "suite", "year": 2016,
+      "note": "Office 2016 专业版（非专业增强版）"
+    },
+    "HomeBusiness": {
+      "zh": "小型企业版", "en": "Home & Business", "family": "suite", "year": 2016
+    },
+    "HomeStudent": {
+      "zh": "家庭和学生版", "en": "Home & Student", "family": "suite", "year": 2016
+    },
+    "Personal": {
+      "zh": "个人版", "en": "Personal", "family": "suite", "year": 2016
+    },
+    "University": {
+      "zh": "大学版", "en": "University", "family": "suite", "year": 2016
+    },
+    "Mondo": {
+      "zh": "Mondo 版", "en": "Mondo", "family": "suite", "year": 2016,
+      "note": "含全部组件的内部/测试版本"
+    },
+    "ProPlus2019": {
+      "zh": "专业增强版", "en": "Professional Plus", "family": "suite", "year": 2019
+    },
+    "Standard2019": {
+      "zh": "标准版", "en": "Standard", "family": "suite", "year": 2019
+    },
+    "Professional2019": {
+      "zh": "专业版", "en": "Professional", "family": "suite", "year": 2019
+    },
+    "Personal2019": {
+      "zh": "个人版", "en": "Personal", "family": "suite", "year": 2019
+    },
+    "HomeBusiness2019": {
+      "zh": "小型企业版", "en": "Home & Business", "family": "suite", "year": 2019
+    },
+    "HomeStudent2019": {
+      "zh": "家庭和学生版", "en": "Home & Student", "family": "suite", "year": 2019
+    },
+    "Mondo2019": {
+      "zh": "Mondo 版", "en": "Mondo", "family": "suite", "year": 2019
+    },
+    "ProPlus2021": {
+      "zh": "专业增强版", "en": "Professional Plus", "family": "suite", "year": 2021
+    },
+    "Standard2021": {
+      "zh": "标准版", "en": "Standard", "family": "suite", "year": 2021
+    },
+    "ProPlus2024": {
+      "zh": "专业增强版", "en": "Professional Plus", "family": "suite", "year": 2024
+    },
+    "Standard2024": {
+      "zh": "标准版", "en": "Standard", "family": "suite", "year": 2024
+    },
+    "O365ProPlus": {
+      "zh": "Microsoft 365 企业应用版", "en": "Microsoft 365 Apps for enterprise",
+      "family": "suite", "channel": "subscription", "full": true,
+      "note": "旧称 Office 365 专业增强版，ProductReleaseId 仍为 O365ProPlusRetail"
+    },
+    "O365Business": {
+      "zh": "Microsoft 365 商业版", "en": "Microsoft 365 Apps for business",
+      "family": "suite", "channel": "subscription", "full": true
+    },
+    "O365HomePrem": {
+      "zh": "Microsoft 365 家庭版", "en": "Microsoft 365 Family",
+      "family": "suite", "channel": "subscription", "full": true
+    },
+    "O365SmallBusPrem": {
+      "zh": "Microsoft 365 商业高级版", "en": "Microsoft 365 Business Premium",
+      "family": "suite", "channel": "subscription", "full": true
+    },
+    "ProjectPro2019": {
+      "zh": "专业版", "en": "Professional", "family": "project", "year": 2019
+    },
+    "ProjectStd2019": {
+      "zh": "标准版", "en": "Standard", "family": "project", "year": 2019
+    },
+    "ProjectPro2021": {
+      "zh": "专业版", "en": "Professional", "family": "project", "year": 2021
+    },
+    "ProjectStd2021": {
+      "zh": "标准版", "en": "Standard", "family": "project", "year": 2021
+    },
+    "ProjectPro2024": {
+      "zh": "专业版", "en": "Professional", "family": "project", "year": 2024
+    },
+    "ProjectStd2024": {
+      "zh": "标准版", "en": "Standard", "family": "project", "year": 2024
+    },
+    "VisioPro2019": {
+      "zh": "专业版", "en": "Professional", "family": "visio", "year": 2019
+    },
+    "VisioStd2019": {
+      "zh": "标准版", "en": "Standard", "family": "visio", "year": 2019
+    },
+    "VisioPro2021": {
+      "zh": "专业版", "en": "Professional", "family": "visio", "year": 2021
+    },
+    "VisioStd2021": {
+      "zh": "标准版", "en": "Standard", "family": "visio", "year": 2021
+    },
+    "VisioPro2024": {
+      "zh": "专业版", "en": "Professional", "family": "visio", "year": 2024
+    },
+    "VisioStd2024": {
+      "zh": "标准版", "en": "Standard", "family": "visio", "year": 2024
+    }
+  },
+  "unknownHint": "未收录的 ReleaseId 请直接显示原始字符串，并向上游字典补充"
+}

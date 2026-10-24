@@ -48,12 +48,12 @@ product-names/
 └─ .github/workflows/validate.yml
 ```
 
-## 覆盖范围（43 条）
+## 覆盖范围（44 条）
 
 | 族 | 数量 | 说明 |
 |---|---|---|
 | `client` | 29 | Windows 7 → 11 全系列：含 N 版、Connected（含 Bing）、WMC、Student、LTSC/LTSB、企业版 G、多会话、云端版 |
-| `server` | 9 | 2008 → 2025，含 Datacenter: Azure Edition、Hyper-V Server、SBS |
+| `server` | 10 | 2008 → 2025，含 Datacenter: Azure Edition、Essentials、Hyper-V Server、SBS、Itanium |
 | `iot` | 3 | IoT 企业版 / IoT 企业版 LTSC / IoT Core |
 | `special` | 2 | Surface Hub 团队版、HoloLens |
 

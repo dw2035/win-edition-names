@@ -17,7 +17,8 @@ param(
     [switch]$List,
     [switch]$Json,
     [switch]$Offline,
-    [string]$Source = 'https://raw.githubusercontent.com/USER/REPO/main/data/products.json',
+    [string]$Source = 'https://raw.githubusercontent.com/dw2035/win-edition-names/main/data/products.json',
+    [string]$Fallback = 'https://dw2035.github.io/win-edition-names/data/products.json',
     [int]$MaxAgeDays = 7,
     [string]$CacheDir = (Join-Path $env:LOCALAPPDATA 'ProductNames')
 )
@@ -82,7 +83,7 @@ $dataSrc = 'bundled'
 $bundled = Join-Path (Split-Path -Parent $PSScriptRoot) 'data\products.json'
 $cache   = Join-Path $CacheDir 'products.json'
 
-if (-not $Offline -and $Source -notmatch 'USER/REPO') {
+if (-not $Offline) {
     $stale = $true
     if (Test-Path -LiteralPath $cache) {
         $age = (Get-Date) - (Get-Item -LiteralPath $cache).LastWriteTime
@@ -90,6 +91,7 @@ if (-not $Offline -and $Source -notmatch 'USER/REPO') {
     }
     if ($Force -or $stale) {
         $txt = Get-UrlText $Source
+        if (-not $txt -and $Fallback) { $txt = Get-UrlText $Fallback }
         if ($txt) {
             try {
                 $tmp = $txt | ConvertFrom-Json

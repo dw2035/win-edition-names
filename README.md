@@ -16,7 +16,7 @@ Windows(R), CoreCountrySpecific edition       →   Windows 11 家庭中文版
 | 提供静态 JSON，客户端每次**在线拉取**（不落地缓存） | ❌ 不做激活、不改系统设置 |
 | 提供网页查询页（GitHub Pages） | ❌ 不需要任何服务端逻辑 |
 
-> 字典本身只是**命名数据**，`build/validate.ps1` 里还有一道守卫：一旦数据里出现形如 `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` 的字符串就直接判失败。
+> 字典本身只是**命名数据**，不含任何密钥。
 
 ## 为什么用 GitHub 就够了
 
@@ -33,15 +33,12 @@ GitHub 仓库  →  GitHub Pages (CDN)  →  客户端 HTTPS GET data/products.j
 ```
 product-names/
 ├─ data/
-│  ├─ products.json          # Windows EditionID 字典（UTF-8 无 BOM）
-│  └─ products.json.sha256   # 校验和，由 build/validate.ps1 生成
-├─ build/
-│  └─ validate.ps1           # 校验 data/products.json + 刷新校验和
+│  └─ products.json          # Windows EditionID 字典（UTF-8 无 BOM）
 ├─ client/
 │  └─ lookup.ps1             # 客户端：每次启动从网络拉取字典
 ├─ index.html                # 网页查询页（Pages 首页）
 ├─ lookup.bat                # 双击启动器（纯 ASCII）
-└─ .github/workflows/validate.yml
+└─ README.md
 ```
 
 ## 覆盖范围（44 条）
@@ -126,7 +123,7 @@ powershell -File client\lookup.ps1 -Edition "Windows(R), ProfessionalWorkstation
 2. **Settings → Pages → Source: GitHub Actions / Deploy from a branch (main, /)**，得到：
    `https://<你>.github.io/<仓库>/`
 3. 客户端默认 `-Source` 里的 `USER/REPO` 换成你的实际路径，或直接用 Pages 地址（国内更稳，也可绑自定义域名）。
-4. 改了 `data/products.json` 后，**务必运行一次** `build/validate.ps1` 更新 `products.json.sha256`，否则 CI 会报 stale。
+4. 改了 `data/products.json` 后直接提交推送，Pages 会自动重新部署（约 1 分钟）。
 
 > 网络提示：`raw.githubusercontent.com` 在国内经常不可达。优先用 Pages 域名，或在 `-Source` 里指定你自己的 CDN。
 
@@ -136,7 +133,7 @@ powershell -File client\lookup.ps1 -Edition "Windows(R), ProfessionalWorkstation
    ```powershell
    (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').EditionID
    ```
-2. 跑 `powershell -File build\validate.ps1`，通过后提交 PR。
+2. 确认 JSON 格式合法（可用 `Get-Content data\products.json -Raw | ConvertFrom-Json` 自查），提交 PR。
 
 ## 与 `netnr/kms` 清单的对应关系
 

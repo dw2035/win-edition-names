@@ -81,8 +81,12 @@ product-names/
 
 ```powershell
 # 交互模式（双击 lookup.bat 即进入）
-#   先显示本机原始代号，然后可反复输入代号查询，回车=翻译本机，q=退出
+#   先显示本机原始代号，然后可反复输入代号查询
+#   回车 = 翻译本机   ? = 只读状态指引   q = 退出
 powershell -File client\lookup.ps1 -Interactive
+
+# 只读状态指引（离线可用，不执行任何命令）
+powershell -File client\lookup.ps1 -Guide
 
 # 当前机器
 powershell -File client\lookup.ps1

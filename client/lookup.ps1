@@ -17,6 +17,7 @@ param(
     [switch]$List,
     [switch]$Json,
     [switch]$Interactive,
+    [switch]$Guide,
     [string]$Source = 'https://raw.githubusercontent.com/dw2035/win-edition-names/main/data/products.json',
     [string]$Fallback = 'https://dw2035.github.io/win-edition-names/data/products.json'
 )
@@ -33,6 +34,28 @@ $regInstall = (Get-ItemProperty $cur -Name InstallationType).InstallationType
 if ([string]::IsNullOrWhiteSpace($Edition)) { $Edition = $regEdition }
 $buildNum = 0
 [void][int]::TryParse([string]$regBuild, [ref]$buildNum)
+
+# ---------- guide (static text, read-only, works offline) ----------
+function Show-Guide {
+    Write-Host ''
+    Write-Host '================================================================'
+    Write-Host '  当前状态指引（只读排查，脚本不会执行下面任何命令）'
+    Write-Host '================================================================'
+    Write-Host '  1. 查看激活状态        slmgr /xpr'
+    Write-Host '  2. 查看详细授权信息    slmgr /dlv              (需管理员)'
+    Write-Host '  3. 查看 KMS 指向       reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform" /v KeyManagementServiceName'
+    Write-Host '  4. 清除 KMS 指向       slmgr /ckms             (需管理员，属于清理)'
+    Write-Host ('-' * 66)
+    Write-Host '  说明:'
+    Write-Host '   - 1~3 只读取状态，不修改任何设置'
+    Write-Host '   - 4 仅清掉遗留的第三方 KMS 指向；已激活状态仍在，'
+    Write-Host '     但续期会改走 DNS 自动发现，找不到则约 180 天后失效'
+    Write-Host '   - 可先跑 slmgr /dlv，看“产品密钥通道”判断自己属于哪种授权'
+    Write-Host '================================================================'
+    Write-Host ''
+}
+
+if ($Guide) { Show-Guide; exit 0 }
 
 # ---------- helpers ----------
 function Get-UrlText {
@@ -128,6 +151,7 @@ if ($Interactive) {
     Write-Host ('-' * 64)
     Write-Host '  直接回车 = 翻译本机代号'
     Write-Host '  输入代号 = 查别的（支持 SPP 长名称，如 Windows(R), Xxx edition）'
+    Write-Host '  ?        = 查看只读状态指引'
     Write-Host '  q        = 退出'
     Write-Host ''
 
@@ -136,6 +160,7 @@ if ($Interactive) {
         if ($null -eq $ans) { break }
         $ans = $ans.Trim()
         if ($ans -ieq 'q' -or $ans -ieq 'quit' -or $ans -ieq 'exit') { break }
+        if ($ans -eq '?' -or $ans -ieq 'guide' -or $ans -ieq 'help') { Show-Guide; continue }
         if ($ans -eq '') { $ans = $regEdition }
 
         $e = $ans

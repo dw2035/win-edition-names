@@ -15,8 +15,8 @@ rem  Pure ASCII file. No admin rights required.
 rem ============================================================
 setlocal EnableDelayedExpansion
 
-set "PRIMARY=https://raw.githubusercontent.com/dw2035/win-edition-names/main/client"
-set "MIRROR=https://dw2035.github.io/win-edition-names/client"
+set "PRIMARY=https://dw2035.github.io/win-edition-names/client"
+set "MIRROR=https://raw.githubusercontent.com/dw2035/win-edition-names/main/client"
 set "DIR=%TEMP%\win-edition-names"
 set "PS1=%DIR%\lookup.ps1"
 set "SHA=%DIR%\lookup.ps1.sha256"
@@ -43,7 +43,8 @@ echo.
 echo [ERROR] SHA256 mismatch - refusing to run.
 echo         expected : %EXPECT%
 echo         actual   : %ACTUAL%
-echo         The script may be corrupted or tampered with.
+echo         Either the script is tampered with, or the CDN is still
+echo         caching an older copy. Wait a few minutes and retry.
 echo.
 pause
 exit /b 4

@@ -18,8 +18,8 @@ param(
     [switch]$Json,
     [switch]$Interactive,
     [switch]$Guide,
-    [string]$Source = 'https://raw.githubusercontent.com/dw2035/win-edition-names/main/data/products.json',
-    [string]$Fallback = 'https://dw2035.github.io/win-edition-names/data/products.json'
+    [string]$Source = 'https://dw2035.github.io/win-edition-names/data/products.json',
+    [string]$Fallback = 'https://raw.githubusercontent.com/dw2035/win-edition-names/main/data/products.json'
 )
 
 $ErrorActionPreference = 'SilentlyContinue'

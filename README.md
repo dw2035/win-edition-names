@@ -32,14 +32,30 @@ GitHub 仓库  →  GitHub Pages (CDN)  →  客户端 HTTPS GET data/products.j
 
 ```
 product-names/
+├─ .gitattributes            # * -text：禁止换行转换，保证 sha256 可比对
 ├─ data/
 │  └─ products.json          # Windows EditionID 字典（UTF-8 无 BOM）
 ├─ client/
-│  └─ lookup.ps1             # 客户端：每次启动从网络拉取字典
+│  ├─ lookup.ps1             # 客户端：启动时从网络拉取字典
+│  └─ lookup.ps1.sha256      # 脚本校验和（lookup.bat 下载后比对）
 ├─ index.html                # 网页查询页（Pages 首页）
-├─ lookup.bat                # 双击启动器（纯 ASCII）
+├─ lookup.bat                # 单文件客户端：下载 + 校验 + 运行
 └─ README.md
 ```
+
+## 最简用法：客户端只留一个 lookup.bat
+
+把 `lookup.bat` 单独拷到任意机器，双击即可 —— 其余全部在云端：
+
+```
+① 下载 client/lookup.ps1        主源 dw2035.github.io(Pages)，失败则 raw
+② 用 client/lookup.ps1.sha256 比对 SHA256，不一致直接拒绝运行
+③ 执行：无参数 = -Interactive（交互），有参数 = 原样透传
+```
+
+- 下载的脚本缓存在 `%TEMP%\win-edition-names\`，网络不通时自动用上次副本；
+- 无需管理员权限，不写注册表，不监听端口；
+- raw 与 Pages 分别有 CDN 缓存，推送后几分钟内可能拿到旧副本——此时哈希不匹配会拒绝运行，重试即可。
 
 ## 覆盖范围（44 条）
 
@@ -100,8 +116,8 @@ powershell -File client\lookup.ps1 -Json
 # 列出全部
 powershell -File client\lookup.ps1 -List
 
-# 换镜像源（默认 raw → Pages 双源）
-powershell -File client\lookup.ps1 -Source https://raw.githubusercontent.com/USER/REPO/main/data/products.json
+# 换镜像源（默认 Pages → raw 双源）
+powershell -File client\lookup.ps1 -Source https://dw2035.github.io/win-edition-names/data/products.json
 ```
 
 也接受 SPP 风格的长字符串，内部会自动提取代号：
@@ -110,7 +126,7 @@ powershell -File client\lookup.ps1 -Source https://raw.githubusercontent.com/USE
 powershell -File client\lookup.ps1 -Edition "Windows(R), ProfessionalWorkstation edition"
 ```
 
-**数据获取**：每次启动依次尝试 `raw.githubusercontent.com` → `dw2035.github.io (Pages)`，任一成功即载入内存并查询；两边都失败则报错退出并提示换镜像源。
+**数据获取**：每次启动依次尝试 `dw2035.github.io (Pages)` → `raw.githubusercontent.com`，任一成功即载入内存并查询；两边都失败则报错退出并提示换镜像源。
 
 > 本仓库**不随包携带字典**，也不写本地缓存——数据始终来自线上，保证每次都是最新版本。
 

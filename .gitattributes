@@ -1,0 +1,4 @@
+# Keep bytes exactly as authored - no CRLF/LF conversion.
+# lookup.bat verifies client/lookup.ps1 by SHA256, so the bytes
+# served by GitHub must match the bytes on disk.
+* -text
